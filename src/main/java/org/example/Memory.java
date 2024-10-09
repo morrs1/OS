@@ -2,6 +2,7 @@ package org.example;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 public class Memory {
@@ -15,7 +16,10 @@ public class Memory {
     public Memory() {
         MEMORY_USAGE = new LinkedHashMap<>();
         MEMORY_MANAGER = new HashMap<>();
-        IntStream.range(0, 64).forEach(index -> MEMORY_MANAGER.put(index, index));
+        IntStream.range(0, 64).forEach(index -> {
+            MEMORY_MANAGER.put(index, index);
+            MEMORY_USAGE.put(index, 0);
+        });
         startTimer();
     }
 
@@ -28,8 +32,12 @@ public class Memory {
                     Thread.currentThread().interrupt(); // Восстановление статуса прерывания
                     break; // Выход из цикла при прерывании
                 }
-                myVariable++; // Увеличение переменной
-                System.out.println("myVariable: " + myVariable); // Вывод текущего значения
+                for (Map.Entry<Integer, Integer> entry : MEMORY_USAGE.entrySet()) {
+                    int key = entry.getKey();
+                    int value = entry.getValue();
+                    MEMORY_USAGE.put(key, value + 1); // Увеличиваем значение на 1
+                } // Увеличение переменной
+                System.out.println(MEMORY_USAGE); // Вывод текущего значения
             }
         });
         incrementThread.start(); // Запуск потока
@@ -40,9 +48,11 @@ public class Memory {
             if (place_index < 32) {
                 System.out.printf("Страница %d расположена в RAM под индексом %d \n", index, place_index);
             } else {
-                System.out.printf("Страница %d расположена на HD под индексом %d \n", index, place_index-31);
+                System.out.printf("Страница %d расположена на HD под индексом %d \n", index, place_index - 31);
             }
+
         });
+        System.out.println(MEMORY_USAGE);
     }
 
 }
