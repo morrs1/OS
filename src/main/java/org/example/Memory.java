@@ -74,7 +74,9 @@ public class Memory {
         if (MEMORY_MANAGER.get(rightIndex) < 32) {
             RAM[index] = value;
         } else {
-            HARD_DISK[index - 1024] = value;
+            var ind = findNFU().getKey();
+            changeLocationOfPage(ind, rightIndex);
+            RAM[ind * 32 + index % 32] = value;
         }
     }
 
@@ -92,27 +94,34 @@ public class Memory {
     }
 
     public void changeLocationOfPage(int indexOfPageOnRAM, int indexOfPageOnHardDisk) {
-        var buffIndex = MEMORY_MANAGER.get(indexOfPageOnRAM);
-        MEMORY_MANAGER.put(indexOfPageOnRAM, MEMORY_MANAGER.get(indexOfPageOnHardDisk));
-        MEMORY_MANAGER.put(indexOfPageOnHardDisk, buffIndex);
-        var bufferArray =
-                Arrays.toString(
-                        Arrays.copyOfRange(
-                                HARD_DISK,
-                                (indexOfPageOnHardDisk - 32) * PAGE_SIZE,
-                                (indexOfPageOnHardDisk - 32) * PAGE_SIZE + PAGE_SIZE
-                        )
-                );
+        // Получаем индексы страниц
+        int ramPageIndex = MEMORY_MANAGER.get(indexOfPageOnRAM);
+        int hdPageIndex = MEMORY_MANAGER.get(indexOfPageOnHardDisk);
 
-        System.out.println(
-                Arrays.toString(
-                        Arrays.copyOfRange(
-                                RAM,
-                                indexOfPageOnRAM * PAGE_SIZE,
-                                indexOfPageOnRAM * PAGE_SIZE + PAGE_SIZE
-                        )
-                )
+        // Создаем временные буферы для хранения данных
+        byte[] tempRamBuffer = Arrays.copyOfRange(
+                RAM,
+                ramPageIndex * PAGE_SIZE,
+                ramPageIndex * PAGE_SIZE + PAGE_SIZE
         );
+
+        byte[] tempHdBuffer = Arrays.copyOfRange(
+                HARD_DISK,
+                (hdPageIndex - 32) * PAGE_SIZE,
+                (hdPageIndex - 32) * PAGE_SIZE + PAGE_SIZE
+        );
+
+        // Меняем местами данные
+        System.arraycopy(tempHdBuffer, 0, RAM, ramPageIndex * PAGE_SIZE, PAGE_SIZE);
+        System.arraycopy(tempRamBuffer, 0, HARD_DISK, (hdPageIndex - 32) * PAGE_SIZE, PAGE_SIZE);
+
+        // Обновляем MEMORY_MANAGER
+        MEMORY_MANAGER.put(indexOfPageOnRAM, hdPageIndex);
+        MEMORY_MANAGER.put(indexOfPageOnHardDisk, ramPageIndex);
+
+        // Выводим результат
+        System.out.println("Страница " + indexOfPageOnRAM + " перемещена на HD под индекс " + (hdPageIndex - 32));
+        System.out.println("Страница " + indexOfPageOnHardDisk + " перемещена в RAM под индекс " + ramPageIndex);
     }
 
 

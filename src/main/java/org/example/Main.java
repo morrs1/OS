@@ -16,12 +16,11 @@ public class Main {
 
 //        IntStream.range(0,32).forEach(index->memory.write(index*32+10, (byte) index));
 
-//        memory.readAll();
-        memory.findNFU();
-        memory.write(325, (byte) 111);
-        memory.write(1124, (byte) 22);
         memory.readAll();
-        memory.changeLocationOfPage(10, 35);
+        memory.findNFU();
+//        memory.write(325, (byte) 111);
+        memory.write(420, (byte) 111);
+        memory.write(1124, (byte) 22);
         memory.readAll();
     }
 }
