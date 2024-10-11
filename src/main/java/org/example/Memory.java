@@ -31,20 +31,20 @@ public class Memory {
         Thread incrementThread = new Thread(() -> {
             while (true) {
                 try {
-                    Thread.sleep(5000); // Задержка 5 секунд
+                    Thread.sleep(5000);
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt(); // Восстановление статуса прерывания
-                    break; // Выход из цикла при прерывании
+                    Thread.currentThread().interrupt();
+                    break;
                 }
                 for (Map.Entry<Integer, Integer> entry : MEMORY_USAGE.entrySet()) {
                     int key = entry.getKey();
                     int value = entry.getValue();
-                    MEMORY_USAGE.put(key, value + 1); // Увеличиваем значение на 1
-                } // Увеличение переменной
-//                System.out.println(MEMORY_USAGE); // Вывод текущего значения
+                    MEMORY_USAGE.put(key, value + 1);
+                }
+//                System.out.println(MEMORY_USAGE);
             }
         });
-        incrementThread.start(); // Запуск потока
+        incrementThread.start();
     }
 
     public void readAll() {
@@ -56,8 +56,8 @@ public class Memory {
                 ));
 
             } else {
-                if (place_index == 32)
-                    System.out.println("-----------------------------------------------------------------------------------------");
+//                if (place_index == 32)
+//                    System.out.println("-----------------------------------------------------------------------------------------");
                 System.out.printf("Страница %d расположена на HD под индексом %d \n", index, place_index - 32);
                 System.out.println(Arrays.toString(
                         Arrays.copyOfRange(HARD_DISK, (place_index - 32) * PAGE_SIZE, (place_index - 32) * PAGE_SIZE + PAGE_SIZE)
@@ -70,9 +70,14 @@ public class Memory {
 
     public void write(int index, byte value) {
         int rightIndex = index / PAGE_SIZE;
-        System.out.println(rightIndex);
+        System.out.println("Значение записано на страницу " + rightIndex);
         if (MEMORY_MANAGER.get(rightIndex) < 32) {
-            RAM[index] = value;
+            if(index>1023){
+                RAM[index-1024] = value;
+            }else{
+                RAM[index] = value;
+            }
+
         } else {
             var ind = findNFU().getKey();
             changeLocationOfPage(ind, rightIndex);
@@ -80,7 +85,23 @@ public class Memory {
         }
     }
 
-    public Map.Entry<Integer, Integer> findNFU() {
+    public void read(int indexOfPage) {
+        var placeIndex = MEMORY_MANAGER.get(indexOfPage);
+        if (placeIndex < 32) {
+            System.out.println(Arrays.toString(
+                    Arrays.copyOfRange(RAM, placeIndex * PAGE_SIZE, placeIndex * PAGE_SIZE + PAGE_SIZE)
+            ));
+
+        } else {
+            var ind = findNFU().getKey();
+            changeLocationOfPage(ind, indexOfPage);
+            System.out.println(Arrays.toString(
+                    Arrays.copyOfRange(HARD_DISK, (placeIndex - 32) * PAGE_SIZE, (placeIndex - 32) * PAGE_SIZE + PAGE_SIZE)
+            ));
+        }
+    }
+
+    private Map.Entry<Integer, Integer> findNFU() {
         Map.Entry<Integer, Integer> maxEntry = null;
 
         for (Map.Entry<Integer, Integer> entry : MEMORY_USAGE.entrySet()) {
@@ -89,11 +110,11 @@ public class Memory {
             }
         }
         assert maxEntry != null;
-        System.out.println("Индекс страницы: " + maxEntry.getKey());
+//        System.out.println("Индекс страницы: " + maxEntry.getKey());
         return maxEntry;
     }
 
-    public void changeLocationOfPage(int indexOfPageOnRAM, int indexOfPageOnHardDisk) {
+    private void changeLocationOfPage(int indexOfPageOnRAM, int indexOfPageOnHardDisk) {
         // Получаем индексы страниц
         int ramPageIndex = MEMORY_MANAGER.get(indexOfPageOnRAM);
         int hdPageIndex = MEMORY_MANAGER.get(indexOfPageOnHardDisk);
@@ -118,6 +139,9 @@ public class Memory {
         // Обновляем MEMORY_MANAGER
         MEMORY_MANAGER.put(indexOfPageOnRAM, hdPageIndex);
         MEMORY_MANAGER.put(indexOfPageOnHardDisk, ramPageIndex);
+
+        MEMORY_USAGE.put(indexOfPageOnRAM, 0);
+        MEMORY_USAGE.put(indexOfPageOnHardDisk, 0);
 
         // Выводим результат
         System.out.println("Страница " + indexOfPageOnRAM + " перемещена на HD под индекс " + (hdPageIndex - 32));
