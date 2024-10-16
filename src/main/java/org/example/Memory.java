@@ -88,7 +88,7 @@ public class Memory {
 
         } else {
             var ind = findNFU().getKey();
-            System.out.println("Индекс страницы после нахождения " + ind);
+//            System.out.println("Индекс страницы после нахождения " + ind);
             changeLocationOfPage(ind, rightIndex);
 
             RAM[MEMORY_MANAGER.get(rightIndex) * PAGE_SIZE + index % PAGE_SIZE] = value;
@@ -125,13 +125,13 @@ public class Memory {
     }
 
     private void changeLocationOfPage(int indexOfPageOnRAM, int indexOfPageOnHardDisk) {
-        System.out.println("Индекс страницы 1 " + indexOfPageOnRAM);
-        System.out.println("Индекс страницы 2 " + indexOfPageOnHardDisk);
+//        System.out.println("Индекс страницы 1 " + indexOfPageOnRAM);
+//        System.out.println("Индекс страницы 2 " + indexOfPageOnHardDisk);
         // Получаем индексы страниц
         int ramPageIndex = MEMORY_MANAGER.get(indexOfPageOnRAM);//3
         int hdPageIndex = MEMORY_MANAGER.get(indexOfPageOnHardDisk);//5
-        System.out.println("Индекс по расположению " + ramPageIndex);
-        System.out.println("Индекс по расположению 2 стр " + hdPageIndex);
+//        System.out.println("Индекс по расположению " + ramPageIndex);
+//        System.out.println("Индекс по расположению 2 стр " + hdPageIndex);
         // Создаем временные буферы для хранения данных
         byte[] tempRamBuffer = Arrays.copyOfRange(
                 RAM,
