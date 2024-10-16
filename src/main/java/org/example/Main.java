@@ -4,8 +4,9 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
+    private final static int MEMORY_SIZE = 128;
     public static void main(String[] args) {
-        Memory memory = new Memory();
+        Memory memory = new Memory(MEMORY_SIZE);
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
@@ -19,14 +20,14 @@ public class Main {
 
             switch (choice) {
                 case "1":
-                    System.out.print("Введите индекс для записи (0-2047): ");
+                    System.out.print("Введите индекс для записи (0-"+ (MEMORY_SIZE*2-1) + "): ");
                     int index = Integer.parseInt(scanner.nextLine());
                     System.out.print("Введите значение для записи (0-255): ");
                     byte value = Byte.parseByte(scanner.nextLine());
                     memory.write(index, value);
                     break;
                 case "2":
-                    System.out.print("Введите индекс страницы для чтения (0-63): ");
+                    System.out.print("Введите индекс страницы для чтения (0-"+ MEMORY_SIZE*2/32 + "): ");
                     int pageIndex = Integer.parseInt(scanner.nextLine());
                     memory.read(pageIndex);
                     break;
